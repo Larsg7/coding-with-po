@@ -1,6 +1,6 @@
 #heart {
-  color: red;
-  animation: heartBeat 5s infinite;
+  color: rgb(250, 45, 45);
+  animation: heartBeat 3s infinite ease-in-out;
 }
 
 @keyframes heartBeat {

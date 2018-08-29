@@ -8,7 +8,7 @@ const styles = {
   right: 0,
   bottom: 0,
   padding: '1rem',
-  backgroundColor: '#333',
+  backgroundColor: '#263238',
   color: 'white'
 };
 

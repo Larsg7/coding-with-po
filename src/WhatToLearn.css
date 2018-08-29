@@ -1,0 +1,19 @@
+.bullet-point {
+  text-align: left;
+  display: grid;
+  grid-template-columns: 100px auto;
+  margin-bottom: 2rem;
+}
+
+.bullet-point h3,
+.bullet-point p {
+  margin: 0;
+}
+.bullet-point p {
+  margin-top: 0.3rem;
+}
+
+.bullet-point i {
+  margin-top: 2px;
+  font-size: 2rem;
+}

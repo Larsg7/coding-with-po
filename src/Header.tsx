@@ -2,17 +2,17 @@ import * as React from 'react';
 
 import './Header.css';
 
-const styles = {
-  fontFamily: 'sans-serif',
-  textAlign: 'center',
-  height: '70vh',
-  width: '100vw',
-  position: 'relative',
-  backgroundColor: '#333'
-};
-
 const Header = () => (
-  <div style={styles}>
+  <div
+    style={{
+      fontFamily: 'sans-serif',
+      textAlign: 'center',
+      position: 'relative',
+      height: '60vh',
+      width: '100vw',
+      backgroundColor: '#263238'
+    }}
+  >
     <div
       style={{
         position: 'absolute',
@@ -20,13 +20,13 @@ const Header = () => (
         left: '50%',
         transform: 'translate(-50%, -50%)',
         color: '#eee',
-        opacity: 0.7
+        opacity: 0.9
       }}
     >
       <h1 id="headline" style={{ whiteSpace: 'nowrap' }}>
         Coding with PhysikOnline
       </h1>
-      <p>Echtes Peer-To-Peer Learning</p>
+      <p>Real Peer-To-Peer Teaching</p>
     </div>
   </div>
 );
