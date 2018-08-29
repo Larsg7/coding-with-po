@@ -1,0 +1,13 @@
+#heart {
+  color: red;
+  animation: heartBeat 5s infinite;
+}
+
+@keyframes heartBeat {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}

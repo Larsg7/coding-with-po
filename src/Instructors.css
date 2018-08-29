@@ -1,0 +1,22 @@
+.instructor-wrapper {
+  display: grid;
+  grid-template-columns: 50% 50%;
+}
+
+@media (max-width: 900px) {
+  .instructor-wrapper {
+    grid-template-columns: 100%;
+  }
+}
+
+.instructor {
+  margin: auto;
+  max-width: 150px;
+  margin-bottom: 1rem;
+}
+
+.instructor img {
+  width: 100px;
+  height: 100px;
+  border-radius: 100px;
+}
