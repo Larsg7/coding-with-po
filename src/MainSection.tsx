@@ -37,6 +37,7 @@ interface State {
   writeCode: boolean;
   codeOutput: CodeOutput | null;
   editedCode: string;
+  loading: boolean;
 }
 
 class MainSection extends React.Component<{}, State> {
@@ -46,7 +47,8 @@ class MainSection extends React.Component<{}, State> {
       code: '',
       writeCode: true,
       codeOutput: null,
-      editedCode: ''
+      editedCode: '',
+      loading: false
     };
   }
 
@@ -75,6 +77,7 @@ class MainSection extends React.Component<{}, State> {
 
   private interpretPython() {
     let code = this.state.editedCode;
+    this.setState({ loading: true });
     if (this.state.writeCode) {
       this.showComplete();
       code = codeComplete;
@@ -97,13 +100,15 @@ class MainSection extends React.Component<{}, State> {
             stderr: data.errors
           }
         });
+        this.setState({ loading: false });
       })
       .catch(() => {
         this.setState({
           codeOutput: {
-            stderr: 'Something went wrong! And its not your code...'
+            stderr: `Something went wrong! And its not your code...`
           }
         });
+        this.setState({ loading: false });
       });
   }
 
@@ -112,35 +117,36 @@ class MainSection extends React.Component<{}, State> {
   }
 
   render() {
-    const output = this.state.codeOutput ? (
-      <div style={{ marginTop: '1rem' }}>
-        <pre
-          hidden={!this.state.codeOutput}
-          style={{
-            backgroundColor: '#ddd',
-            padding: '0.5rem',
-            paddingBottom: '0',
-            margin: 0
-          }}
-        >
-          {this.state.codeOutput!.stdout}
-        </pre>
-        <pre
-          hidden={!this.state.codeOutput}
-          style={{
-            backgroundColor: '#ddd',
-            padding: '0.5rem',
-            paddingTop: '0',
-            color: 'red',
-            margin: 0
-          }}
-        >
-          {this.errorOutput(this.state.codeOutput)}
-        </pre>
-      </div>
-    ) : (
-      ''
-    );
+    const output =
+      this.state.codeOutput && !this.state.loading ? (
+        <div style={{ marginTop: '1rem', height: '100px', overflow: 'auto' }}>
+          <pre
+            hidden={!this.state.codeOutput}
+            style={{
+              backgroundColor: '#ddd',
+              padding: '0.5rem',
+              paddingBottom: '0',
+              margin: 0
+            }}
+          >
+            {this.state.codeOutput!.stdout}
+          </pre>
+          <pre
+            hidden={!this.state.codeOutput}
+            style={{
+              backgroundColor: '#ddd',
+              padding: '0.5rem',
+              paddingTop: '0',
+              color: 'red',
+              margin: 0
+            }}
+          >
+            {this.errorOutput(this.state.codeOutput)}
+          </pre>
+        </div>
+      ) : (
+        ''
+      );
 
     return (
       <div style={styles}>
@@ -179,14 +185,17 @@ class MainSection extends React.Component<{}, State> {
                   padding: '0.2rem',
                   fontSize: '0.8rem',
                   backgroundColor: 'transparent',
-                  color: 'white',
+                  color: this.state.loading ? 'gray' : 'white',
                   cursor: 'pointer'
                 }}
+                disabled={this.state.loading}
                 onClick={this.interpretPython.bind(this)}
               >
                 Ausführen
               </button>
             </div>
+
+            <div id="loader" hidden={!this.state.loading} />
             {output}
           </div>
           <WhatToLearn />
