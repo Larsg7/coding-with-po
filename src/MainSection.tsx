@@ -24,12 +24,19 @@ print('''
   When: {} every {}
   Where: {}
   Start: {}
-'''.format(time, weekday, location, start))
-`;
+'''.format(time, weekday, location, start))`;
+
+interface CodeOutput {
+  err?: { cmd?: string; code?: number };
+  stdout?: string;
+  stderr?: string;
+}
 
 interface State {
   code: string;
   writeCode: boolean;
+  codeOutput: CodeOutput | null;
+  editedCode: string;
 }
 
 class MainSection extends React.Component<{}, State> {
@@ -37,7 +44,9 @@ class MainSection extends React.Component<{}, State> {
     super(props);
     this.state = {
       code: '',
-      writeCode: true
+      writeCode: true,
+      codeOutput: null,
+      editedCode: ''
     };
   }
 
@@ -49,10 +58,11 @@ class MainSection extends React.Component<{}, State> {
     if (!this.state.writeCode) {
       return;
     }
+    const code =
+      codeComplete.slice(0, index++) + (index < codeComplete.length ? '|' : '');
     this.setState({
-      code:
-        codeComplete.slice(0, index++) +
-        (index < codeComplete.length ? '|' : '')
+      code,
+      writeCode: codeComplete !== code
     });
     if (index < codeComplete.length) {
       setTimeout(() => this.startCodeWriting(index), 50);
@@ -63,7 +73,75 @@ class MainSection extends React.Component<{}, State> {
     this.setState({ code: codeComplete, writeCode: false });
   }
 
+  private interpretPython() {
+    let code = this.state.editedCode;
+    if (this.state.writeCode) {
+      this.showComplete();
+      code = codeComplete;
+    }
+    fetch('https://safe-python-api.larsgroeber.com', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8'
+      },
+      body: JSON.stringify({
+        language: 0,
+        code
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        this.setState({
+          codeOutput: {
+            stdout: data.output,
+            stderr: data.errors
+          }
+        });
+      })
+      .catch(() => {
+        this.setState({
+          codeOutput: {
+            stderr: 'Something went wrong! And its not your code...'
+          }
+        });
+      });
+  }
+
+  private errorOutput(data: CodeOutput) {
+    return data.stderr;
+  }
+
   render() {
+    const output = this.state.codeOutput ? (
+      <div style={{ marginTop: '1rem' }}>
+        <pre
+          hidden={!this.state.codeOutput}
+          style={{
+            backgroundColor: '#ddd',
+            padding: '0.5rem',
+            paddingBottom: '0',
+            margin: 0
+          }}
+        >
+          {this.state.codeOutput!.stdout}
+        </pre>
+        <pre
+          hidden={!this.state.codeOutput}
+          style={{
+            backgroundColor: '#ddd',
+            padding: '0.5rem',
+            paddingTop: '0',
+            color: 'red',
+            margin: 0
+          }}
+        >
+          {this.errorOutput(this.state.codeOutput)}
+        </pre>
+      </div>
+    ) : (
+      ''
+    );
+
     return (
       <div style={styles}>
         <div
@@ -81,13 +159,35 @@ class MainSection extends React.Component<{}, State> {
               onFocus={this.showComplete.bind(this)}
               className="code-editor"
               value={this.state.code}
+              onChange={(e, i, editedCode) => this.setState({ editedCode })}
               options={{
                 mode: 'python',
                 theme: 'material',
-                lineNumbers: true,
-                readOnly: this.state.code !== codeComplete
+                lineNumbers: true
               }}
             />
+            <div
+              style={{
+                padding: '0.2rem',
+                backgroundColor: 'rgb(38, 50, 56)',
+                borderTop: 'solid 2px white'
+              }}
+            >
+              <button
+                style={{
+                  border: 'none',
+                  padding: '0.2rem',
+                  fontSize: '0.8rem',
+                  backgroundColor: 'transparent',
+                  color: 'white',
+                  cursor: 'pointer'
+                }}
+                onClick={this.interpretPython.bind(this)}
+              >
+                Ausführen
+              </button>
+            </div>
+            {output}
           </div>
           <WhatToLearn />
           <Instructors />
